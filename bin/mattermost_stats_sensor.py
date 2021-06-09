@@ -16,7 +16,8 @@ The program uses the JSON format to encode a message:
       "total_users": int,
       "active_users": int,
       "monthly_active_users": int,
-      "banned_users": int
+      "banned_users": int,
+      "ts": str
     }
 
 The following data is reported:
@@ -39,7 +40,11 @@ import urllib.request
 
 import paho.mqtt.client
 
-from almawitness.sensors.common import add_mqtt_arg_parser_args, mqtt_client
+from almawitness.sensors.common import (
+    add_mqtt_arg_parser_args,
+    get_iso8601_ts,
+    mqtt_client
+)
 
 
 def init_arg_parser() -> argparse.ArgumentParser:
@@ -91,7 +96,7 @@ def get_mattermost_stats(server: str, token: str) -> dict:
         'inactive_user_count': 'banned_users'
     }
     with urllib.request.urlopen(rqst) as request:
-        stats = {}
+        stats = {'ts': get_iso8601_ts()}
         for rec in json.load(request):
             if rec['name'] in mapping:
                 stats[mapping[rec['name']]] = rec['value']

@@ -68,15 +68,19 @@ $ influx config create --active -n dbadmin \
 that will create the `dbadmin` configuration for the `AlmaLinux` organization
 authenticating using the administrator token.
 
-Now create an authentication token for Telegraf, the token will have
-read/write permissions for the `distro_spread` bucket only:
+Now you need to create an authentication token for Telegraf, that token must
+have read/write permissions for the `distro_spread` bucket:
 
-````shell
+```shell
+# get the "distro_spread" bucket ID
+$ BUCKET_ID=$(influx bucket list | grep -oP '^(\w+)(?=\s+distro_spread)')
+
+# create authentication token
 $ influx auth create --org AlmaLinux \
       --read-bucket "${BUCKET_ID}" --write-bucket "${BUCKET_ID}"
-````
+```
 
-the command will print a generated token and some additional information.
+the last command will print a generated token and some additional information.
 Create the `telegraf-vars.env` file in the project's root and put the
 Telegraf token there:
 
