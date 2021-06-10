@@ -13,8 +13,10 @@ import paho.mqtt.client
 
 __all__ = [
     'add_mqtt_arg_parser_args', 'get_iso8601_ts', 'get_usage_stats_topic_name',
-    'mqtt_client'
+    'mqtt_client', 'USER_AGENT'
 ]
+
+USER_AGENT = 'AlmaBot/0.1 (+https://github.com/AlmaLinux)'
 
 
 def add_mqtt_arg_parser_args(arg_parser: argparse.ArgumentParser,
