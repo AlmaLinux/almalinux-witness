@@ -94,11 +94,11 @@ have read/write permissions for the `distro_spread` bucket:
 
 ```shell
 # get the "distro_spread" bucket ID
-$ BUCKET_ID=$(influx bucket list | grep -oP '^(\w+)(?=\s+distro_spread)')
+$ BUCKET_ID=$(influx bucket list -t '${INFLUX_ADMIN_TOKEN}' | grep -oP '^(\w+)(?=\s+distro_spread)')
 
 # create authentication token
 $ influx auth create --org AlmaLinux \
-      --read-bucket "${BUCKET_ID}" --write-bucket "${BUCKET_ID}"
+      --read-bucket "${BUCKET_ID}" --write-bucket "${BUCKET_ID}" -t '${INFLUX_ADMIN_TOKEN}'
 ```
 
 the last command will print a generated token and some additional information.
@@ -119,5 +119,5 @@ Execute the following command in order to launch InfluxDB, Mosquitto and
 Telegraf:
 
 ```shell
-$ docker compose up
+$ docker-compose up
 ```
