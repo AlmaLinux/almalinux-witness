@@ -22,6 +22,7 @@ Execution example:
 import argparse
 import json
 import sys
+import typing
 import urllib.request
 
 import paho.mqtt.client
@@ -78,7 +79,7 @@ def get_image_stats(org: str, image: str) -> dict:
                 'ts': get_iso8601_ts()}
 
 
-def main(sys_args: list[str]):
+def main(sys_args: typing.List[str]):
     arg_parser = init_arg_parser()
     args = arg_parser.parse_args(sys_args)
     org = args.organization

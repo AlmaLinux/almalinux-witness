@@ -11,8 +11,8 @@ The AlmaLinux OS Project monitoring tool.
 Create docker volume mount directories:
 
 ```shell
-$ mkdir volumes/influxdb/data
-$ mkdir volumes/mosquitto/{data,log}
+$ mkdir -p volumes/influxdb/data
+$ mkdir -p volumes/mosquitto/{data,log}
 ```
 
 Initialize a virtual environment:
@@ -24,6 +24,12 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
+Enable masquerading:
+
+```shell
+$ firewall-cmd --zone=public --add-masquerade --permanent
+$ firewall-cmd --reload
+```
 
 ### InfluxDB database initialization
 
@@ -46,19 +52,34 @@ Save the provided `${INFLUX_ADMIN_USER}`, `${INFLUX_ADMIN_PASSWORD}` and
 `${INFLUX_ADMIN_TOKEN}` values into a secure place because you will need them
 for your InfluxDB administration purposes.
 
+Wait until you will see the following log messages on your console:
+
+```
+2021-06-09T21:10:26.686975Z     info    Listening       {"log_id": "0UdedM~W000", "service": "tcp-listener", "transport": "http", "addr": ":8086", "port": 8086}
+2021-06-09T21:10:26.687147Z     info    Starting        {"log_id": "0UdedM~W000", "service": "telemetry", "interval": "8h"}
+```
+
+then terminate the docker-compose process with `Ctrl-c`.
+
 
 ### Telegraf token creation
 
 When you have the InfluxDB database initialized, you need to create an
 unprivileged token for [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/).
 
-Run InfluxDB CLI container in a separate terminal with the following command:
+Run docker-compose with the `influx_admin` profile enabled:
 
 ```shell
-$ docker-compose run influxdb_cli bash
+$ docker-compose --profile=influx_admin up
 ```
 
-create a CLI configuration for the InfluxDB database:
+Open a separate terminal and connect to the `influxdb_cli` container:
+
+```shell
+$ docker-compose exec influxdb_cli bash
+```
+
+then create a CLI configuration for the InfluxDB database:
 
 ```shell
 $ influx config create --active -n dbadmin \
@@ -88,8 +109,8 @@ Telegraf token there:
 INFLUX_TOKEN='ENTER_TELEGRAF_TOKEN_HERE'
 ```
 
-Now you can safely terminate your main docker-compose process with the `Ctrl-c`
-keyboard combination.
+Now you can safely terminate both your docker-compose processess with the
+`Ctrl-c` keyboard combination.
 
 
 ### Running the system
