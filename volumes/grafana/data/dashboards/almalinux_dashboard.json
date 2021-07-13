@@ -155,6 +155,28 @@
         "y": 0
       },
       "id": 2,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "AlmaLinux official Docker image",
+          "url": "https://hub.docker.com/_/almalinux"
+        },
+        {
+          "targetBlank": true,
+          "title": "AlmaLinux deprecated Docker image",
+          "url": "https://hub.docker.com/r/almalinux/almalinux"
+        },
+        {
+          "targetBlank": true,
+          "title": "Rocky Linux official Docker Image",
+          "url": "https://hub.docker.com/r/rockylinux/rockylinux"
+        },
+        {
+          "targetBlank": true,
+          "title": "VzLinux official Docker image",
+          "url": "https://hub.docker.com/r/virtuozzo/vzlinux8"
+        }
+      ],
       "options": {
         "legend": {
           "calcs": [],
@@ -424,6 +446,134 @@
         }
       ],
       "title": "Vagrant Box downloads",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "description": "Chat.almalinux.org user activity statistics.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "active_users {host=\"witness.almalinux.org\", platform=\"chat.almalinux.org\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Active users"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "banned_users {host=\"witness.almalinux.org\", platform=\"chat.almalinux.org\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Banned users"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_active_users {host=\"witness.almalinux.org\", platform=\"chat.almalinux.org\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Monthly active users"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_users {host=\"witness.almalinux.org\", platform=\"chat.almalinux.org\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Total users"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"distro_spread\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"alma_social\")\n  |> filter(fn: (r) => r[\"platform\"] == \"chat.almalinux.org\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Chat.almalinux.org users",
       "type": "timeseries"
     }
   ],
