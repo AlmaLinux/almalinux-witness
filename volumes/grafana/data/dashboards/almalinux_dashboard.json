@@ -174,6 +174,158 @@
       "title": "DockerHub pulls",
       "transformations": [],
       "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "description": "DockerHub image stars statistics.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "library/almalinux"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "AlmaLinux"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "almalinux/almalinux"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(159, 159, 159)",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "AlmaLinux (deprecated)"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rockylinux/rockylinux"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Rocky Linux"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "virtuozzo/vzlinux8"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "VzLinux"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"distro_spread\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"distro_spread\")\n  |> filter(fn: (r) => r[\"platform\"] == \"dockerhub\")\n  |> filter(fn: (r) => r[\"_field\"] == \"stars\")\n  |> map(fn: (r) => ({_value: r._value, _time: r._time, _field: \"${r.org}/${r.image}\"}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "DockerHub Stars",
+      "type": "timeseries"
     }
   ],
   "refresh": "",
@@ -191,5 +343,5 @@
   "timezone": "",
   "title": "AlmaLinux Popularity",
   "uid": "m05VjNmnk",
-  "version": 3
+  "version": 2
 }
