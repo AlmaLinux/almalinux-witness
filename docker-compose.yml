@@ -35,3 +35,18 @@ services:
       - "8094:8094"
     volumes:
       - "./volumes/telegraf/config/telegraf.conf:/etc/telegraf/telegraf.conf"
+
+  grafana:
+    image: "grafana/grafana:8.0.5"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/admin_password
+    depends_on:
+      - influxdb
+    ports:
+      - "3000:3000"
+    user: "$UID:$GID"
+    volumes:
+      - "./volumes/grafana/admin_password:/run/secrets/admin_password"
+      - "./volumes/grafana/provisioning:/etc/grafana/provisioning"
+      - "./volumes/grafana/data:/var/lib/grafana"
+      #- "./volumes/grafana/dashboards:/var/lib/grafana/dashboards"

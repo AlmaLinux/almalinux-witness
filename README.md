@@ -113,6 +113,15 @@ Now you can safely terminate both your docker-compose processess with the
 `Ctrl-c` keyboard combination.
 
 
+### Grafana configuration
+
+Configure a Grafana administrator password:
+
+```shell
+$ echo 'ENTER_PASSWORD_HERE' > volumes/grafana/admin_password
+$ chmod 600 volumes/grafana/admin_password
+```
+
 ### Running the system
 
 Execute the following command in order to launch InfluxDB, Mosquitto and
