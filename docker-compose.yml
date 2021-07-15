@@ -39,7 +39,9 @@ services:
   grafana:
     image: "grafana/grafana:8.0.5"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/admin_password
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/admin_password
+      GF_RENDERING_SERVER_URL: http://grafana_renderer:8081/render
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
     depends_on:
       - influxdb
     ports:
@@ -49,3 +51,10 @@ services:
       - "./volumes/grafana/admin_password:/run/secrets/admin_password"
       - "./volumes/grafana/provisioning:/etc/grafana/provisioning"
       - "./volumes/grafana/data:/var/lib/grafana"
+
+  grafana_renderer:
+    image: "grafana/grafana-image-renderer:3.0.1"
+    ports:
+      - 8081
+    environment:
+      ENABLE_METRICS: 'true'
