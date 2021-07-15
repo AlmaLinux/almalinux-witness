@@ -44,9 +44,8 @@ services:
       - influxdb
     ports:
       - "3000:3000"
-    user: "$UID:$GID"
+    user: "${UID}:${GID}"
     volumes:
       - "./volumes/grafana/admin_password:/run/secrets/admin_password"
       - "./volumes/grafana/provisioning:/etc/grafana/provisioning"
       - "./volumes/grafana/data:/var/lib/grafana"
-      #- "./volumes/grafana/dashboards:/var/lib/grafana/dashboards"

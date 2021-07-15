@@ -122,11 +122,35 @@ $ echo 'ENTER_PASSWORD_HERE' > volumes/grafana/admin_password
 $ chmod 600 volumes/grafana/admin_password
 ```
 
+Create an InfluxDB datasource configuration file
+`volumes/grafana/provisioning/datasources/datasource.yaml` with the following
+content:
+
+```yaml
+apiVersion: 1
+
+datasources:
+  - name: Witness-InfluxDB-Flux
+    type: influxdb
+    url: http://influxdb:8086/
+    access: proxy
+    isDefault: true
+    secureJsonData:
+      token: 'ENTER_INFLUXDB_TOKEN_HERE'
+    jsonData:
+      version: Flux
+      organization: AlmaLinux
+      defaultBucket: distro_spread
+      tlsSkipVerify: true
+      timeInterval: "1m"
+```
+
+
 ### Running the system
 
 Execute the following command in order to launch InfluxDB, Mosquitto and
 Telegraf:
 
 ```shell
-$ docker-compose up
+$ export UID="$(id -u)"; export GID="$(id -g)"; docker-compose up
 ```
