@@ -49,6 +49,7 @@ services:
     user: "${UID}:${GID}"
     volumes:
       - "./volumes/grafana/admin_password:/run/secrets/admin_password"
+      - "./volumes/grafana/grafana.ini:/etc/grafana/grafana.ini"
       - "./volumes/grafana/provisioning:/etc/grafana/provisioning"
       - "./volumes/grafana/data:/var/lib/grafana"
 
