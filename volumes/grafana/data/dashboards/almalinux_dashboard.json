@@ -57,11 +57,11 @@
               "fill": "solid"
             },
             "lineWidth": 1,
-            "pointSize": 3,
+            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "auto",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -159,6 +159,25 @@
                 "value": "VzLinux"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "eurolinux/eurolinux-8"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "EuroLinux"
+              }
+            ]
           }
         ]
       },
@@ -182,13 +201,18 @@
         },
         {
           "targetBlank": true,
-          "title": "Rocky Linux official Docker Image",
+          "title": "Rocky Linux official Docker image",
           "url": "https://hub.docker.com/r/rockylinux/rockylinux"
         },
         {
           "targetBlank": true,
           "title": "VzLinux official Docker image",
           "url": "https://hub.docker.com/r/virtuozzo/vzlinux8"
+        },
+        {
+          "targetBlank": true,
+          "title": "EuroLinux official Docker image",
+          "url": "https://hub.docker.com/r/eurolinux/eurolinux-8"
         }
       ],
       "options": {
@@ -334,6 +358,25 @@
                 "value": "VzLinux"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "eurolinux/eurolinux-8"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "EuroLinux"
+              }
+            ]
           }
         ]
       },
@@ -357,13 +400,18 @@
         },
         {
           "targetBlank": true,
-          "title": "Rocky Linux official Docker Image",
+          "title": "Rocky Linux official Docker image",
           "url": "https://hub.docker.com/r/rockylinux/rockylinux"
         },
         {
           "targetBlank": true,
           "title": "VzLinux official Docker image",
           "url": "https://hub.docker.com/r/virtuozzo/vzlinux8"
+        },
+        {
+          "targetBlank": true,
+          "title": "EuroLinux official Docker image",
+          "url": "https://hub.docker.com/r/eurolinux/eurolinux-8"
         }
       ],
       "options": {
@@ -442,10 +490,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -467,6 +511,44 @@
               {
                 "id": "displayName",
                 "value": "AlmaLinux"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rockylinux/8"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Rocky Linux"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "eurolinux-vagrant/eurolinux-8"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "EuroLinux"
               }
             ]
           }
@@ -1019,7 +1101,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1132,7 +1214,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1245,7 +1327,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1349,5 +1431,5 @@
   "timezone": "",
   "title": "AlmaLinux Popularity",
   "uid": "m05VjNmnk",
-  "version": 12
+  "version": 13
 }
