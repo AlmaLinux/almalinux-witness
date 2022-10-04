@@ -8,13 +8,6 @@ services:
       - "./volumes/influxdb/config/config.yml:/etc/influxdb2/config.yml"
       - "./volumes/influxdb/data:/var/lib/influxdb2"
 
-  influxdb_cli:
-    image: "influxdb:2.0.7"
-    depends_on:
-      - influxdb
-    profiles:
-      - influx_admin
-
   mosquitto:
     image: "eclipse-mosquitto:2.0.10"
     ports:
@@ -56,6 +49,6 @@ services:
   grafana_renderer:
     image: "grafana/grafana-image-renderer:3.0.1"
     ports:
-      - 8081
+      - "8081"
     environment:
       ENABLE_METRICS: 'true'

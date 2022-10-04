@@ -5,6 +5,9 @@ The AlmaLinux OS Project monitoring tool.
 
 ## Deployment and initial configuration
 
+This section describes a local development environment deployment and
+configuration.
+
 
 ### Pre-requirements
 
@@ -24,12 +27,25 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
-Enable masquerading:
+Enable masquerading if you are going to access Witness outside your localhost:
 
 ```shell
 $ firewall-cmd --zone=public --add-masquerade --permanent
 $ firewall-cmd --reload
 ```
+
+Create an empty `telegraf-vars.env` file in the project's root:
+
+```shell
+$ install -m 600 /dev/null telegraf-vars.env
+```
+
+Create an empty Grafana configuration file:
+
+```shell
+$ install -m 600 /dev/null volumes/grafana/grafana.ini
+```
+
 
 ### InfluxDB database initialization
 
@@ -38,19 +54,21 @@ define corresponding environment variables or replace them with desired
 values):
 
 ```shell
-docker-compose run \
-  -e DOCKER_INFLUXDB_INIT_ORG=AlmaLinux \
-  -e DOCKER_INFLUXDB_INIT_BUCKET=distro_spread \
-  -e DOCKER_INFLUXDB_INIT_MODE=setup \
-  -e DOCKER_INFLUXDB_INIT_USERNAME="${INFLUX_ADMIN_USER}" \
-  -e DOCKER_INFLUXDB_INIT_PASSWORD="${INFLUX_ADMIN_PASSWORD}" \
-  -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN="${INFLUX_ADMIN_TOKEN}" \
-  influxdb
+$ export UID="$(id -u)"
+$ export GID="$(id -g)"
+$ docker-compose run \
+    -e DOCKER_INFLUXDB_INIT_ORG=AlmaLinux \
+    -e DOCKER_INFLUXDB_INIT_BUCKET=distro_spread \
+    -e DOCKER_INFLUXDB_INIT_MODE=setup \
+    -e DOCKER_INFLUXDB_INIT_USERNAME="${INFLUX_ADMIN_USER}" \
+    -e DOCKER_INFLUXDB_INIT_PASSWORD="${INFLUX_ADMIN_PASSWORD}" \
+    -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN="${INFLUX_ADMIN_TOKEN}" \
+    influxdb
 ```
 
 Save the provided `${INFLUX_ADMIN_USER}`, `${INFLUX_ADMIN_PASSWORD}` and
 `${INFLUX_ADMIN_TOKEN}` values into a secure place because you will need them
-for your InfluxDB administration purposes.
+for InfluxDB administration purposes.
 
 Wait until you will see the following log messages on your console:
 
@@ -67,23 +85,23 @@ then terminate the docker-compose process with `Ctrl-c`.
 When you have the InfluxDB database initialized, you need to create an
 unprivileged token for [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/).
 
-Run docker-compose with the `influx_admin` profile enabled:
+Run the `influxdb` container:
 
 ```shell
-$ docker-compose --profile=influx_admin up
+$ docker-compose up influxdb
 ```
 
-Open a separate terminal and connect to the `influxdb_cli` container:
+open another terminal and connect to the running container:
 
 ```shell
-$ docker-compose exec influxdb_cli bash
+$ docker compose run -e INFLUX_ADMIN_TOKEN='YOUR_INFLUX_ADMIN_TOKEN' influxdb bash
 ```
 
 then create a CLI configuration for the InfluxDB database:
 
 ```shell
 $ influx config create --active -n dbadmin \
-      -u http://influxdb:8086 -t '${INFLUX_ADMIN_TOKEN}' -o AlmaLinux
+      -u http://influxdb:8086 -t "${INFLUX_ADMIN_TOKEN}" -o AlmaLinux
 ```
 
 that will create the `dbadmin` configuration for the `AlmaLinux` organization
@@ -94,23 +112,21 @@ have read/write permissions for the `distro_spread` bucket:
 
 ```shell
 # get the "distro_spread" bucket ID
-$ BUCKET_ID=$(influx bucket list -t '${INFLUX_ADMIN_TOKEN}' | grep -oP '^(\w+)(?=\s+distro_spread)')
+$ BUCKET_ID=$(influx bucket list -t "${INFLUX_ADMIN_TOKEN}" | grep -oP '^(\w+)(?=\s+distro_spread)')
 
 # create authentication token
 $ influx auth create --org AlmaLinux \
-      --read-bucket "${BUCKET_ID}" --write-bucket "${BUCKET_ID}" -t '${INFLUX_ADMIN_TOKEN}'
+      --read-bucket "${BUCKET_ID}" --write-bucket "${BUCKET_ID}" -t "${INFLUX_ADMIN_TOKEN}"
 ```
 
 the last command will print a generated token and some additional information.
-Create the `telegraf-vars.env` file in the project's root and put the
-Telegraf token there:
+Add this token to the `telegraf-vars.env` file in the project's root:
 
 ```shell
 INFLUX_TOKEN='ENTER_TELEGRAF_TOKEN_HERE'
 ```
 
-Now you can safely terminate both your docker-compose processess with the
-`Ctrl-c` keyboard combination.
+Now you can safely terminate both docker-compose processes.
 
 
 ### Grafana configuration
@@ -153,4 +169,14 @@ Telegraf:
 
 ```shell
 $ export UID="$(id -u)"; export GID="$(id -g)"; docker-compose up
+```
+
+Use the `admin` username and a password from the `volumes/grafana/admin_password`
+file to login to the Grafana UI http://localhost:3000/.
+
+Set up a cron job for periodical sensors execution. An example below will
+collect the official AlmaLinux OS Docker image statistics every hour:
+
+```
+0 * * * * ${PROJECT_ROOT}/env/bin/python ${PROJECT_ROOT}/bin/docker_hub_stats_sensor.py -o library -i almalinux
 ```
