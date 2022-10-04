@@ -54,9 +54,7 @@ define corresponding environment variables or replace them with desired
 values):
 
 ```shell
-$ export UID="$(id -u)"
-$ export GID="$(id -g)"
-$ docker-compose run \
+$ UGID="$(id -u):$(id -g)" docker-compose run \
     -e DOCKER_INFLUXDB_INIT_ORG=AlmaLinux \
     -e DOCKER_INFLUXDB_INIT_BUCKET=distro_spread \
     -e DOCKER_INFLUXDB_INIT_MODE=setup \
@@ -88,35 +86,26 @@ unprivileged token for [Telegraf](https://www.influxdata.com/time-series-platfor
 Run the `influxdb` container:
 
 ```shell
-$ docker-compose up influxdb
+$ UGID="$(id -u):$(id -g)" docker-compose up influxdb
 ```
 
-open another terminal and connect to the running container:
+open another terminal to find an InfluxDB bucket ID and generate a token for it:
 
-```shell
-$ docker compose run -e INFLUX_ADMIN_TOKEN='YOUR_INFLUX_ADMIN_TOKEN' influxdb bash
-```
+```console
+$ export UGID="$(id -u):$(id -g)"
 
-then create a CLI configuration for the InfluxDB database:
+# get an InfluxDB bucket ID and save it to the `BUCKET_ID` environment variable 
+$ BUCKET_ID=$(docker compose exec influxdb \
+               influx bucket list -o AlmaLinux -t "${INFLUX_ADMIN_TOKEN}" \
+               | grep -oP '^(\w+)(?=\s+distro_spread)')
 
-```shell
-$ influx config create --active -n dbadmin \
-      -u http://influxdb:8086 -t "${INFLUX_ADMIN_TOKEN}" -o AlmaLinux
-```
+# generate an InfluxDB authentication token
+$ docker compose exec influxdb \
+    influx auth create --org AlmaLinux --read-bucket "${BUCKET_ID}" \
+                       --write-bucket "${BUCKET_ID}" -t "${INFLUX_ADMIN_TOKEN}"
 
-that will create the `dbadmin` configuration for the `AlmaLinux` organization
-authenticating using the administrator token.
-
-Now you need to create an authentication token for Telegraf, that token must
-have read/write permissions for the `distro_spread` bucket:
-
-```shell
-# get the "distro_spread" bucket ID
-$ BUCKET_ID=$(influx bucket list -t "${INFLUX_ADMIN_TOKEN}" | grep -oP '^(\w+)(?=\s+distro_spread)')
-
-# create authentication token
-$ influx auth create --org AlmaLinux \
-      --read-bucket "${BUCKET_ID}" --write-bucket "${BUCKET_ID}" -t "${INFLUX_ADMIN_TOKEN}"
+ID			Description	Token												User Name	User ID			Permissions
+0a14e74bbb95c000			XMmTAPjfIuWw4FafnT84qDyYLTE9JtANoQ1ycOPbxzNWbtAWwAJpLoZhYhoosPAzXrm_gDXtWuWtHyrm1wsxBw==	witnessadm	0a149498f697a000	[read:orgs/6d0c4906bee90d15/buckets/08e28f1c21460f02 write:orgs/6d0c4906bee90d15/buckets/08e28f1c21460f02]
 ```
 
 the last command will print a generated token and some additional information.
@@ -126,7 +115,8 @@ Add this token to the `telegraf-vars.env` file in the project's root:
 INFLUX_TOKEN='ENTER_TELEGRAF_TOKEN_HERE'
 ```
 
-Now you can safely terminate both docker-compose processes.
+Now you can safely terminate the docker-compose process running the `influxdb`
+container.
 
 
 ### Grafana configuration
@@ -168,7 +158,7 @@ Execute the following command in order to launch InfluxDB, Mosquitto and
 Telegraf:
 
 ```shell
-$ export UID="$(id -u)"; export GID="$(id -g)"; docker-compose up
+$ UGID="$(id -u):$(id -g)" docker-compose up
 ```
 
 Use the `admin` username and a password from the `volumes/grafana/admin_password`
@@ -179,4 +169,17 @@ collect the official AlmaLinux OS Docker image statistics every hour:
 
 ```
 0 * * * * ${PROJECT_ROOT}/env/bin/python ${PROJECT_ROOT}/bin/docker_hub_stats_sensor.py -o library -i almalinux
+```
+
+For other sensors usage examples see their docstrings in code.
+
+
+## Backups and maintenance
+
+The `volumes/backup` directory is mounted to the `/srv/backup` in the InfluxDB
+container, so you can use the following command to make a database backup:
+
+```shell
+UGID="$(id -u):$(id -g)" docker compose exec influxdb \
+    influx backup /srv/backup/witness_backup.$(date '+%Y%m%d') -t "${INFLUX_ADMIN_TOKEN}"
 ```

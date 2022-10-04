@@ -1,12 +1,14 @@
 version: "3.9"
 services:
   influxdb:
-    image: "influxdb:2.0.7"
+    image: "influxdb:2.4"
     ports:
       - "8086:8086"
+    user: "${UGID}"
     volumes:
       - "./volumes/influxdb/config/config.yml:/etc/influxdb2/config.yml"
       - "./volumes/influxdb/data:/var/lib/influxdb2"
+      - "./volumes/backup:/srv/backup"
 
   mosquitto:
     image: "eclipse-mosquitto:2.0.10"
@@ -18,7 +20,7 @@ services:
       - "./volumes/mosquitto/log:/mosquitto/log"
 
   telegraf:
-    image: "telegraf:1.18"
+    image: "telegraf:1.23"
     env_file:
       - telegraf-vars.env
     depends_on:
@@ -30,7 +32,7 @@ services:
       - "./volumes/telegraf/config/telegraf.conf:/etc/telegraf/telegraf.conf"
 
   grafana:
-    image: "grafana/grafana:8.0.5"
+    image: "grafana/grafana:8.5.13"
     environment:
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/admin_password
       GF_RENDERING_SERVER_URL: http://grafana_renderer:8081/render
@@ -39,7 +41,7 @@ services:
       - influxdb
     ports:
       - "3000:3000"
-    user: "${UID}:${GID}"
+    user: "${UGID}"
     volumes:
       - "./volumes/grafana/admin_password:/run/secrets/admin_password"
       - "./volumes/grafana/grafana.ini:/etc/grafana/grafana.ini"
@@ -47,7 +49,7 @@ services:
       - "./volumes/grafana/data:/var/lib/grafana"
 
   grafana_renderer:
-    image: "grafana/grafana-image-renderer:3.0.1"
+    image: "grafana/grafana-image-renderer:3.6.1"
     ports:
       - "8081"
     environment:
